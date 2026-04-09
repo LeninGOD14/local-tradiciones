@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cajas - Tradiciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --verde-cayambe: #1b4d3e; 
+            --verde-claro: #2d6a4f;
+            --amarillo-oro: #f9d71c; 
+            --borde-logo: #004d00;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; 
+        }
+
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            flex-direction: column; 
+        }
+
+        .navbar-custom {
+            background-color: var(--verde-cayambe);
+            border-bottom: 4px solid var(--amarillo-oro);
+            padding: 15px 0;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand-text {
+            font-family: 'Archivo Black', sans-serif;
+            color: var(--amarillo-oro) !important;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 0px var(--borde-logo);
+            text-decoration: none;
+        }
+
+        .btn-logout {
+            border: 2px solid var(--amarillo-oro);
+            color: var(--amarillo-oro);
+            font-weight: 700;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--amarillo-oro);
+            color: var(--verde-cayambe);
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-family: 'Archivo Black', sans-serif;
+            color: var(--verde-cayambe);
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .btn-cierre {
+            background-color: var(--amarillo-oro);
+            color: var(--verde-cayambe);
+            font-weight: 800;
+            border-radius: 12px;
+            text-transform: uppercase;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-cierre:hover {
+            background-color: var(--verde-cayambe);
+            color: var(--amarillo-oro);
+            transform: translateY(-2px);
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto; 
+            background: white;
+            border-radius: 20px;
+            border: 2px solid #eee;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            color: var(--verde-cayambe);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            border-bottom: 3px solid var(--amarillo-oro);
+            padding: 15px;
+        }
+
+        .monto-ingreso { color: #2d6a4f; font-weight: 700; }
+        .monto-gasto { color: #dc3545; font-weight: 700; }
+        .monto-neto { 
+            background-color: var(--verde-cayambe); 
+            color: white; 
+            padding: 5px 12px; 
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .badge-info-caja {
+            font-size: 0.6rem;
+            background-color: var(--amarillo-oro);
+            color: var(--verde-cayambe);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .footer-custom {
+            background-color: var(--verde-cayambe);
+            border-top: 4px solid var(--amarillo-oro);
+            padding: 15px 0;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .footer-brand-text {
+            font-family: 'Archivo Black', sans-serif;
+            color: var(--amarillo-oro);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark navbar-custom shadow">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-text" href="#">
+                TRADICIONES
+            </a>
+            <a th:href="@{/}" class="btn btn-logout btn-sm px-3 shadow-sm">
+                <i class="bi bi-house-door me-2"></i>Volver
+            </a>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="container-fluid h-100 d-flex flex-column">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0">
+                <div>
+                    <h1 class="section-title m-0 h2">Control de Caja</h1>
+                    <p class="text-muted fw-bold mb-0">Historial de cierres y saldos netos</p>
+                </div>
+                <a th:href="@{/caja/resumen-hoy}" class="btn btn-cierre px-4 py-2">
+                    <i class="bi bi-briefcase-fill me-2"></i>Cierre de Hoy
+                </a>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th width="150">Fecha</th>
+                            <th>
+                                Ingresos (Efectivo) 
+                                <span class="badge-info-caja shadow-sm">CAJA FÍSICA</span>
+                            </th>
+                            <th>Gastos Operativos</th>
+                            <th>Saldo Neto</th>
+                            <th class="text-center">Reporte</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${cierres}">
+                            <td class="fw-bold text-muted">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                <span th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                            </td>
+                            <td>
+                                <span class="monto-ingreso" th:text="'+ $' + ${c.totalIngresos}">$0.00</span>
+                            </td>
+                            <td>
+                                <span class="monto-gasto" th:text="'- $' + ${c.totalGastos}">$0.00</span>
+                            </td>
+                            <td>
+                                <span class="monto-neto fw-bold" th:text="'$' + ${c.saldoNeto}">$0.00</span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-outline-primary btn-sm px-3 shadow-sm">
+                                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <tr th:if="${#lists.isEmpty(cierres)}">
+                            <td colspan="5" class="text-center py-5">
+                                <i class="bi bi-archive text-muted d-block mb-2" style="font-size: 3rem;"></i>
+                                <p class="text-muted fw-bold">No se registran cierres de caja en el sistema.</p>
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-custom shadow-lg">
+        <div class="container">
+            <p class="footer-brand-text">SISTEMA TRADICIONES | CAYAMBE - ECUADOR</p>
+            <small class="text-white-50" style="font-size: 0.75rem;">Cultura y Folklore en cada prenda</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
