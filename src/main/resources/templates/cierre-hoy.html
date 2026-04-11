@@ -1,307 +1,372 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Resumen del Día - Tradiciones</title>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --verde-cayambe: #1b4d3e; 
-            --verde-claro: #2d6a4f;
-            --amarillo-oro: #f9d71c; 
-            --borde-logo: #004d00;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <title>Resumen del Día - Tradiciones</title>
+        <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+        <style>
+            :root {
+                --verde-cayambe: #1b4d3e;
+                --verde-claro: #2d6a4f;
+                --amarillo-oro: #f9d71c;
+                --borde-logo: #004d00;
+            }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden; 
-        }
+            html, body {
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+            }
 
-        body {
-            background-color: #f4f7f6;
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            display: flex;
-            flex-direction: column; 
-        }
+            body {
+                background-color: #f4f7f6;
+                font-family: 'Montserrat', sans-serif;
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                display: flex;
+                flex-direction: column;
+            }
 
-        .navbar-custom {
-            background-color: var(--verde-cayambe);
-            border-bottom: 4px solid var(--amarillo-oro);
-            padding: 15px 0;
-            flex-shrink: 0;
-        }
+            .navbar-custom {
+                background-color: var(--verde-cayambe);
+                border-bottom: 4px solid var(--amarillo-oro);
+                padding: 15px 0;
+                flex-shrink: 0;
+            }
 
-        .navbar-brand-text {
-            font-family: 'Archivo Black', sans-serif;
-            color: var(--amarillo-oro) !important;
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            text-shadow: 2px 2px 0px var(--borde-logo);
-            text-decoration: none;
-        }
+            .navbar-brand-text {
+                font-family: 'Archivo Black', sans-serif;
+                color: var(--amarillo-oro) !important;
+                font-size: 1.8rem;
+                text-transform: uppercase;
+                letter-spacing: -1px;
+                text-shadow: 2px 2px 0px var(--borde-logo);
+                text-decoration: none;
+            }
 
-        .btn-logout {
-            border: 2px solid var(--amarillo-oro);
-            color: var(--amarillo-oro);
-            font-weight: 700;
-            border-radius: 10px;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
+            .btn-logout {
+                border: 2px solid var(--amarillo-oro);
+                color: var(--amarillo-oro);
+                font-weight: 700;
+                border-radius: 10px;
+                transition: all 0.3s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            }
 
-        .btn-logout:hover {
-            background-color: var(--amarillo-oro);
-            color: var(--verde-cayambe);
-        }
+            .btn-logout:hover {
+                background-color: var(--amarillo-oro);
+                color: var(--verde-cayambe);
+            }
 
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            overflow: hidden;
-        }
+            .main-container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+                overflow: hidden;
+            }
 
-        .section-title {
-            font-family: 'Archivo Black', sans-serif;
-            color: var(--verde-cayambe);
-            text-transform: uppercase;
-        }
+            .section-title {
+                font-family: 'Archivo Black', sans-serif;
+                color: var(--verde-cayambe);
+                text-transform: uppercase;
+            }
 
-        .stat-card {
-            border: none;
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
+            .stat-card {
+                border: none;
+                border-radius: 20px;
+                padding: 15px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+                transition: transform 0.3s;
+            }
 
-        .stat-card:hover { transform: translateY(-5px); }
-        .bg-ingresos { background: linear-gradient(45deg, #1b4d3e, #2d6a4f); color: white; }
-        .bg-efectivo { background: linear-gradient(45deg, #b8860b, #f9d71c); color: var(--verde-cayambe); }
-        .bg-saldo { background: linear-gradient(45deg, #004085, #0d6efd); color: white; }
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+            .bg-ingresos {
+                background: linear-gradient(45deg, #1b4d3e, #2d6a4f);
+                color: white;
+            }
+            .bg-transferencia {
+                background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+                color: white;
+            }
+            .bg-efectivo {
+                background: linear-gradient(45deg, #b8860b, #f9d71c);
+                color: var(--verde-cayambe);
+            }
+            .bg-saldo {
+                background: linear-gradient(45deg, #004085, #0d6efd);
+                color: white;
+            }
 
-        .summary-wrapper {
-            flex: 1;
-            display: flex;
-            gap: 20px;
-            overflow: hidden;
-        }
+            .summary-wrapper {
+                flex: 1;
+                display: flex;
+                gap: 20px;
+                overflow: hidden;
+            }
 
-        .summary-card {
-            background: white;
-            border-radius: 20px;
-            border: 2px solid #eee;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex: 1;
-        }
+            .summary-card {
+                background: white;
+                border-radius: 20px;
+                border: 2px solid #eee;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                flex: 1;
+            }
 
-        .card-header-custom {
-            background: #f8f9fa;
-            border-bottom: 2px solid var(--amarillo-oro);
-            padding: 15px;
-            font-weight: 800;
-            color: var(--verde-cayambe);
-            text-transform: uppercase;
-            font-size: 0.85rem;
-        }
+            .card-header-custom {
+                background: #f8f9fa;
+                border-bottom: 2px solid var(--amarillo-oro);
+                padding: 15px;
+                font-weight: 800;
+                color: var(--verde-cayambe);
+                text-transform: uppercase;
+                font-size: 0.85rem;
+            }
 
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-        }
+            .table-container {
+                flex: 1;
+                overflow-y: auto;
+            }
 
-        .btn-cerrar-caja {
-            background-color: var(--verde-cayambe);
-            color: var(--amarillo-oro);
-            font-weight: 800;
-            border-radius: 15px;
-            text-transform: uppercase;
-            padding: 18px;
-            border: none;
-            box-shadow: 0 8px 15px rgba(27, 77, 62, 0.3);
-            width: 100%;
-        }
+            .btn-cerrar-caja {
+                background-color: var(--verde-cayambe);
+                color: var(--amarillo-oro);
+                font-weight: 800;
+                border-radius: 15px;
+                text-transform: uppercase;
+                padding: 18px;
+                border: none;
+                box-shadow: 0 8px 15px rgba(27, 77, 62, 0.3);
+                width: 100%;
+            }
 
-        .btn-cerrar-caja:hover:not(:disabled) {
-            background-color: var(--verde-claro);
-            transform: scale(1.02);
-        }
+            .btn-cerrar-caja:hover:not(:disabled) {
+                background-color: var(--verde-claro);
+                transform: scale(1.02);
+            }
 
-        .btn-cerrar-caja:disabled {
-            background-color: #ccc;
-            color: #666;
-            box-shadow: none;
-        }
+            .btn-cerrar-caja:disabled {
+                background-color: #ccc;
+                color: #666;
+                box-shadow: none;
+            }
 
-        .footer-custom {
-            background-color: var(--verde-cayambe);
-            border-top: 4px solid var(--amarillo-oro);
-            padding: 15px 0;
-            text-align: center;
-            flex-shrink: 0;
-        }
+            .footer-custom {
+                background-color: var(--verde-cayambe);
+                border-top: 4px solid var(--amarillo-oro);
+                padding: 15px 0;
+                text-align: center;
+                flex-shrink: 0;
+            }
 
-        .footer-brand-text {
-            font-family: 'Archivo Black', sans-serif;
-            color: var(--amarillo-oro);
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-        }
+            .footer-brand-text {
+                font-family: 'Archivo Black', sans-serif;
+                color: var(--amarillo-oro);
+                font-size: 1rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin: 0;
+            }
 
-        .badge-metodo {
-            font-size: 0.65rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
-    </style>
-</head>
-<body>
+            .badge-metodo {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+                border-radius: 6px;
+                text-transform: uppercase;
+            }
 
-    <nav class="navbar navbar-dark navbar-custom shadow">
-        <div class="container">
-            <a class="navbar-brand navbar-brand-text" href="#">TRADICIONES</a>
-            <a th:href="@{/caja}" class="btn btn-logout btn-sm px-3 shadow-sm">
-                <i class="bi bi-arrow-left me-2"></i>Volver
-            </a>
-        </div>
-    </nav>
+            .input-fecha-filtro {
+                border: 2px solid var(--verde-cayambe);
+                border-radius: 10px;
+                padding: 5px 10px;
+                font-family: 'Montserrat', sans-serif;
+                font-weight: 700;
+                color: var(--verde-cayambe);
+                outline: none;
+            }
+        </style>
+    </head>
+    <body>
 
-    <main class="main-container">
-        <div class="container-fluid h-100 d-flex flex-column">
-            
-            <h2 class="section-title h3 mb-4">
-                Resumen de Caja: <span class="text-muted" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}"></span>
-            </h2>
-
-            <div class="row g-3 mb-4 flex-shrink-0">
-                <div class="col-md-4">
-                    <div class="stat-card bg-ingresos shadow-sm text-center">
-                        <small class="fw-bold text-uppercase opacity-75">Total Ventas (Todo)</small>
-                        <h2 class="fw-bold m-0" th:text="'$' + ${ingresos}">$0.00</h2>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card bg-efectivo shadow-sm text-center border border-warning">
-                        <small class="fw-bold text-uppercase opacity-75">Efectivo Ingresado</small>
-                        <h2 class="fw-bold m-0" th:text="'$' + ${ingresosEfectivo}">$0.00</h2>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card bg-saldo shadow-sm text-center">
-                        <small class="fw-bold text-uppercase opacity-75">Dinero en Caja (Efectivo - Gastos)</small>
-                        <h2 class="fw-bold m-0" th:text="'$' + ${saldo}">$0.00</h2>
-                    </div>
-                </div>
+        <nav class="navbar navbar-dark navbar-custom shadow">
+            <div class="container">
+                <a class="navbar-brand navbar-brand-text" href="#">TRADICIONES</a>
+                <a th:href="@{/caja}" class="btn btn-logout btn-sm px-3 shadow-sm">
+                    <i class="bi bi-arrow-left me-2"></i>Volver
+                </a>
             </div>
+        </nav>
 
-            <div class="summary-wrapper">
-                
-                <div class="summary-card shadow-sm">
-                    <div class="card-header-custom d-flex justify-content-between align-items-center">
-                        <span><i class="bi bi-journal-text me-2"></i>Detalle de Alquileres</span>
-                        <span class="badge bg-dark text-white px-3" th:text="${#lists.size(alquileresHoy)} + ' Transacciones'">0</span>
+        <main class="main-container">
+            <div class="container-fluid h-100 d-flex flex-column">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title h3 m-0">Resumen de Caja</h2>
+                    <form th:action="@{/caja/resumen-hoy}" method="get" id="fechaForm">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="fw-bold text-muted small text-uppercase">Cambiar Fecha:</label>
+                            <input type="date" name="fecha" id="fechaInput" 
+                                   class="input-fecha-filtro shadow-sm"
+                                   th:value="${fechaSeleccionada}"
+                                   onchange="document.getElementById('fechaForm').submit()">
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row g-3 mb-4 flex-shrink-0">
+                    <div class="col-md-3">
+                        <div class="stat-card bg-ingresos shadow-sm text-center">
+                            <small class="fw-bold text-uppercase opacity-75">Total Ventas (Todo)</small>
+                            <h2 class="fw-bold m-0" th:text="'$' + ${ingresos}">$0.00</h2>
+                        </div>
                     </div>
-                    <div class="table-container">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light sticky-top">
-                                <tr style="font-size: 0.7rem;" class="text-muted text-uppercase">
-                                    <th>Prenda</th>
-                                    <th>Cliente</th>
-                                    <th>Método</th>
-                                    <th class="text-end">Monto</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="a : ${alquileresHoy}">
-                                    <td class="fw-bold text-dark" th:text="${a.prenda.nombre}">Ropa</td>
-                                    <td class="text-muted" th:text="${a.cliente.nombre}">Juan</td>
-                                    <td>
-                                        <span th:if="${a.metodoPago == 'EFECTIVO'}" class="badge-metodo bg-success-subtle text-success border border-success-subtle">
-                                            <i class="bi bi-cash me-1"></i>Efectivo
-                                        </span>
-                                        <span th:if="${a.metodoPago == 'TRANSFERENCIA'}" class="badge-metodo bg-primary-subtle text-primary border border-primary-subtle">
-                                            <i class="bi bi-bank me-1"></i>Transf.
-                                        </span>
-                                    </td>
-                                    <td class="text-end fw-extrabold text-success" th:text="'$' + ${a.valorCobrado}">$0</td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(alquileresHoy)}">
-                                    <td colspan="4" class="text-center py-5 text-muted fst-italic">Sin movimientos hoy.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-transferencia shadow-sm text-center">
+                            <small class="fw-bold text-uppercase opacity-75">Transferencias</small>
+                            <h2 class="fw-bold m-0" th:text="'$' + ${ingresosTransferencia}">$0.00</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-efectivo shadow-sm text-center border border-warning">
+                            <small class="fw-bold text-uppercase opacity-75">Efectivo Ingresado</small>
+                            <h2 class="fw-bold m-0" th:text="'$' + ${ingresosEfectivo}">$0.00</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-saldo shadow-sm text-center">
+                            <small class="fw-bold text-uppercase opacity-75">Dinero en Caja (Efec - Gast)</small>
+                            <h2 class="fw-bold m-0" th:text="'$' + ${saldo}">$0.00</h2>
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex flex-column gap-3" style="flex: 0.8;">
-                    
-                    <div class="summary-card shadow-sm" style="flex: 1;">
+                <div class="summary-wrapper">
+
+                    <div class="summary-card shadow-sm">
                         <div class="card-header-custom d-flex justify-content-between align-items-center">
-                            <span><i class="bi bi-wallet2 me-2"></i>Gastos del Local</span>
-                            <button class="btn btn-sm btn-danger px-3 fw-bold" data-bs-toggle="collapse" data-bs-target="#formGasto" style="border-radius: 8px;">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
+                            <span><i class="bi bi-journal-text me-2"></i>Detalle de Alquileres</span>
+                            <span class="badge bg-dark text-white px-3" th:text="${#lists.size(alquileresHoy)} + ' Transacciones'">0</span>
                         </div>
-                        <div class="p-3 collapse" id="formGasto">
-                            <form th:action="@{/gastos/guardar-rapido}" method="post" class="p-3 border rounded bg-light">
-                                <input type="text" name="descripcion" class="form-control form-control-sm mb-2" placeholder="Concepto (ej: Pago Luz)" required>
-                                <div class="input-group input-group-sm mb-2">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" name="monto" class="form-control" placeholder="0.00" required>
-                                </div>
-                                <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold">Guardar Gasto</button>
-                            </form>
-                        </div>
-                        <div class="table-container px-3">
-                            <table class="table table-sm">
-                                <tbody>
-                                    <tr th:each="g : ${gastosHoy}">
-                                        <td th:text="${g.descripcion}">Gasto</td>
-                                        <td class="text-danger fw-bold text-end" th:text="'-$' + ${g.monto}">$0</td>
+                        <div class="table-container">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light sticky-top">
+                                    <tr style="font-size: 0.7rem;" class="text-muted text-uppercase">
+                                        <th>Prenda</th>
+                                        <th>Cliente</th>
+                                        <th>Método</th>
+                                        <th class="text-end">Monto</th>
                                     </tr>
-                                    <tr th:if="${#lists.isEmpty(gastosHoy)}">
-                                        <td colspan="2" class="text-center py-4 text-muted small">No hay gastos hoy.</td>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="a : ${alquileresHoy}">
+                                        <td class="fw-bold text-dark" th:text="${a.prenda.nombre}">Ropa</td>
+                                        <td class="text-muted" th:text="${a.cliente.nombre}">Juan</td>
+                                        <td>
+                                            <span th:if="${a.metodoPago != null and a.metodoPago.toUpperCase() == 'EFECTIVO'}" 
+                                                  class="badge-metodo bg-success-subtle text-success border border-success-subtle">
+                                                <i class="bi bi-cash me-1"></i>Efectivo
+                                            </span>
+                                            <span th:if="${a.metodoPago != null and a.metodoPago.toUpperCase() == 'TRANSFERENCIA'}" 
+                                                  class="badge-metodo bg-primary-subtle text-primary border border-primary-subtle">
+                                                <i class="bi bi-bank me-1"></i>Transferencia.
+                                            </span>
+                                            <span th:if="${a.metodoPago != null and a.metodoPago.toUpperCase() != 'EFECTIVO' and a.metodoPago.toUpperCase() != 'TRANSFERENCIA'}" 
+                                                  class="badge bg-secondary" th:text="${a.metodoPago}">
+                                            </span>
+                                        </td>
+                                        <td class="text-end fw-extrabold text-success" th:text="'$' + ${a.valorCobrado}">$0</td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(alquileresHoy)}">
+                                        <td colspan="4" class="text-center py-5 text-muted fst-italic">Sin movimientos en esta fecha.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <form th:action="@{/caja/cerrar}" method="post" class="flex-shrink-0">
-                        <input type="hidden" name="ingresos" th:value="${ingresosEfectivo}">
-                        <input type="hidden" name="gastos" th:value="${gastos}">
-                        <input type="hidden" name="saldo" th:value="${saldo}">
-                        <button type="submit" class="btn btn-cerrar-caja" 
-                                th:disabled="${#lists.isEmpty(alquileresHoy) && #lists.isEmpty(gastosHoy)}">
-                            <i class="bi bi-shield-lock-fill me-2"></i> Finalizar Cierre (Solo Efectivo)
-                        </button>
-                    </form>
+                    <div class="d-flex flex-column gap-3" style="flex: 0.8;">
 
+                        <div class="summary-card shadow-sm" style="flex: 1;">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-wallet2 me-2"></i>Gastos del Local</span>
+                                <button class="btn btn-sm btn-danger px-3 fw-bold" data-bs-toggle="collapse" data-bs-target="#formGasto" style="border-radius: 8px;">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+
+                            <div class="p-3 collapse" id="formGasto">
+                                <form th:action="@{/gastos/guardar-rapido}" method="post" class="p-3 border rounded bg-light">
+                                    <input type="hidden" name="fechaGasto" th:value="${fechaSeleccionada}">
+                                    <input type="text" name="descripcion" class="form-control form-control-sm mb-2" placeholder="Concepto (ej: Pago Luz)" required>
+                                    <div class="input-group input-group-sm mb-2">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" step="0.01" name="monto" class="form-control" placeholder="0.00" required>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-danger btn-sm flex-grow-1 fw-bold">Guardar Gasto</button>
+                                        <button type="button" class="btn btn-secondary btn-sm fw-bold" data-bs-toggle="collapse" data-bs-target="#formGasto">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="table-container px-3">
+                                <table class="table table-sm align-middle">
+                                    <tbody>
+                                        <tr th:each="g : ${gastosHoy}">
+                                            <td th:text="${g.descripcion}" class="small">Gasto</td>
+                                            <td class="text-danger fw-bold text-end small" th:text="'-$' + ${g.monto}">$0</td>
+                                            <td class="text-end" style="width: 80px;">
+                                                <div class="btn-group">
+                                                    <a th:href="@{/gastos/eliminar/{id}(id=${g.id})}" 
+                                                       class="btn btn-link btn-sm text-danger p-1"
+                                                       onclick="return confirm('¿Seguro que quieres eliminar este gasto?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(gastosHoy)}">
+                                            <td colspan="3" class="text-center py-4 text-muted small">No hay gastos en esta fecha.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <form th:action="@{/caja/cerrar}" method="post" class="flex-shrink-0">
+                            <input type="hidden" name="fechaCierre" th:value="${fechaSeleccionada}">
+                            <input type="hidden" name="ingresosTotales" th:value="${ingresos}">
+                            <input type="hidden" name="ingresosEfectivo" th:value="${ingresosEfectivo}">
+                            <input type="hidden" name="ingresosTransferencia" th:value="${ingresosTransferencia}">
+                            <input type="hidden" name="gastos" th:value="${gastos}">
+                            <input type="hidden" name="saldo" th:value="${saldo}">
+                            <button type="submit" class="btn btn-cerrar-caja" 
+                                    th:disabled="${#lists.isEmpty(alquileresHoy) && #lists.isEmpty(gastosHoy)}">
+                                <i class="bi bi-shield-lock-fill me-2"></i> Finalizar Cierre (Solo Efectivo)
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
 
-    <footer class="footer-custom shadow-lg">
-        <div class="container">
-            <p class="footer-brand-text">SISTEMA TRADICIONES | CAYAMBE - ECUADOR</p>
-            <small class="text-white-50" style="font-size: 0.75rem;">Control Diario de Operaciones</small>
-        </div>
-    </footer>
+        <footer class="footer-custom shadow-lg">
+            <div class="container">
+                <p class="footer-brand-text">SISTEMA TRADICIONES | CAYAMBE - ECUADOR</p>
+                <small class="text-white-50" style="font-size: 0.75rem;">Control Diario de Operaciones</small>
+            </div>
+        </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

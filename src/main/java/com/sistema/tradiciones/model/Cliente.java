@@ -1,6 +1,9 @@
 package com.sistema.tradiciones.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "clientes")
@@ -10,10 +13,19 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @NotBlank(message = "La cédula es obligatoria")
+    @Column(unique = true, nullable = false)
     private String cedula;
+
+    @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
+
+    @NotBlank(message = "El apellido es obligatorio")
     private String apellido;
+
+    // Validación: Empieza con 09 y tiene 8 números más (Total 10)
+    @Pattern(regexp = "^09\\d{8}$", message = "El celular debe empezar con 09 y tener 10 dígitos")
+    @Size(min = 10, max = 10, message = "El celular debe tener exactamente 10 dígitos")
     private String celular;
 
     public Cliente() {

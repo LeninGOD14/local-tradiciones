@@ -17,7 +17,7 @@
             html, body {
                 height: 100%;
                 margin: 0;
-                overflow: hidden;
+                overflow: hidden; 
             }
 
             body {
@@ -64,9 +64,10 @@
             .main-container {
                 flex: 1;
                 display: flex;
-                justify-content: center;
+                flex-direction: column;
                 padding: 20px;
-                overflow-y: auto;
+                min-height: 0; 
+                overflow: hidden; 
             }
 
             .card-tradiciones {
@@ -74,11 +75,14 @@
                 border-radius: 25px;
                 background: white;
                 box-shadow: 0 15px 35px rgba(27, 77, 62, 0.15);
-                overflow: hidden;
+                display: flex;
+                flex-direction: column;
                 width: 100%;
                 max-width: 800px;
-                margin-bottom: 20px;
-                height: fit-content;
+                margin: 0 auto;
+                height: 100%; 
+                min-height: 0;
+                overflow: hidden; 
             }
 
             .card-tradiciones-header {
@@ -87,6 +91,14 @@
                 padding: 20px;
                 border-bottom: 4px solid var(--amarillo-oro);
                 text-align: center;
+                flex-shrink: 0;
+            }
+
+            .card-body-scroll {
+                flex: 1;
+                overflow-y: auto;
+                padding: 30px 40px;
+                min-height: 0;
             }
 
             .header-title {
@@ -119,11 +131,6 @@
                 padding: 10px;
                 border: 2px solid #eee;
                 transition: all 0.3s;
-            }
-
-            .form-control:focus, .form-select:focus {
-                border-color: var(--verde-claro);
-                box-shadow: 0 0 0 0.25rem rgba(45, 106, 79, 0.1);
             }
 
             .btn-confirmar {
@@ -182,14 +189,13 @@
                     <small class="text-white-50 fw-bold">Registro de Salida de Prendas</small>
                 </div>
 
-                <div class="card-body p-4 p-md-5">
+                <div class="card-body-scroll">
                     <div th:if="${error}" class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 15px;">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                         <span th:text="${error}">Error</span>
                     </div>
 
                     <form th:action="@{/alquileres/guardar}" method="post">
-
                         <div class="section-subtitle"><i class="bi bi-person-fill me-2"></i>Datos del Cliente</div>
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
@@ -215,39 +221,37 @@
                             <div class="col-md-7 mb-3">
                                 <label class="form-label">Seleccionar Traje / Prenda</label>
                                 <select th:field="${alquiler.prenda.id}" class="form-select" required>
-                                    <option value="" selected disabled>Elija una prenda del inventario...</option>
+                                    <option value="" selected disabled>Elija una prenda...</option>
                                     <option th:each="p : ${prendas}" 
                                             th:value="${p.id}" 
-                                            th:text="${p.nombre} + ' (Sugerido: $' + ${p.precioAlquiler} + ') - Stock: ' + ${p.cantidad}"
-                                            th:disabled="${p.cantidad <= 0}">
+                                            th:text="${p.nombre} + ' ($' + ${p.precioAlquiler} + ')'">
                                     </option>
                                 </select>
                             </div>
                             <div class="col-md-5 mb-3">
                                 <label class="form-label">Valor Final Cobrado ($)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-2" style="border-radius: 12px 0 0 12px;">$</span>
-                                    <input type="number" step="0.01" th:field="${alquiler.valorCobrado}" 
-                                           class="form-control" style="border-radius: 0 12px 12px 0;" placeholder="0.00" required>
+                                    <span class="input-group-text bg-light border-2">$</span>
+                                    <input type="number" step="0.01" th:field="${alquiler.valorCobrado}" class="form-control" required>
                                 </div>
-                                <small class="text-muted" style="font-size: 0.7rem;">Asegúrese que no sea menor al precio base.</small>
                             </div>
                         </div>
 
-                        <div class="col-md-5 mb-3">
-                            <label class="form-label">Método de Pago</label>
-                            <select th:field="${alquiler.metodoPago}" class="form-select" required>
-                                <option value="EFECTIVO">Efectivo</option>
-                                <option value="TRANSFERENCIA">Transferencia</option>
-                            </select>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Método de Pago</label>
+                                <select th:field="${alquiler.metodoPago}" class="form-select" required>
+                                    <option value="EFECTIVO">Efectivo</option>
+                                    <option value="TRANSFERENCIA">Transferencia</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="d-grid mt-2">
+                        <div class="d-grid mt-3">
                             <button type="submit" class="btn btn-confirmar">
-                                <i class="bi bi-clipboard-check-fill me-2"></i>Confirmar y Registrar Alquiler
+                                <i class="bi bi-clipboard-check-fill me-2"></i>Confirmar Alquiler
                             </button>
                         </div>
-                        
                     </form>
                 </div>
             </div>

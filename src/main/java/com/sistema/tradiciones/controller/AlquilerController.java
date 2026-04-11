@@ -2,40 +2,38 @@ package com.sistema.tradiciones.controller;
 
 import com.sistema.tradiciones.model.Alquiler;
 import com.sistema.tradiciones.model.Cliente;
-import com.sistema.tradiciones.model.Prenda;
 import com.sistema.tradiciones.repository.AlquilerRepository;
-import com.sistema.tradiciones.repository.ClienteRepository;
 import com.sistema.tradiciones.repository.PrendaRepository;
+import com.sistema.tradiciones.service.AlquilerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/alquileres")
 public class AlquilerController {
 
     private final AlquilerRepository alquilerRepository;
-    private final ClienteRepository clienteRepository;
     private final PrendaRepository prendaRepository;
+    private final AlquilerService alquilerService;
 
     public AlquilerController(AlquilerRepository alquilerRepository, 
-                              ClienteRepository clienteRepository, 
-                              PrendaRepository prendaRepository) {
+                               PrendaRepository prendaRepository,
+                               AlquilerService alquilerService) {
         this.alquilerRepository = alquilerRepository;
-        this.clienteRepository = clienteRepository;
         this.prendaRepository = prendaRepository;
+        this.alquilerService = alquilerService;
     }
 
+    // LISTADO PRINCIPAL
     @GetMapping
     public String listarAlquileres(Model model) {
         model.addAttribute("alquileres", alquilerRepository.findAll());
         return "lista-alquileres";
     }
 
+    // FORMULARIO PARA NUEVO
     @GetMapping("/nuevo")
     public String formularioAlquiler(Model model) {
         model.addAttribute("alquiler", new Alquiler());
@@ -44,49 +42,48 @@ public class AlquilerController {
         return "formulario-alquiler";
     }
 
+    // FORMULARIO PARA EDITAR (REUSA LA MISMA VISTA)
+    @GetMapping("/editar/{id}")
+    public String editarAlquiler(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        Alquiler alquiler = alquilerService.buscarPorId(id);
+        if (alquiler == null) {
+            redirectAttributes.addFlashAttribute("error", "El alquiler no existe.");
+            return "redirect:/alquileres";
+        }
+        model.addAttribute("alquiler", alquiler);
+        model.addAttribute("cliente", alquiler.getCliente());
+        model.addAttribute("prendas", prendaRepository.findAll());
+        return "formulario-alquiler"; 
+    }
+
+    // PROCESAR GUARDADO (SIRVE PARA CREAR Y ACTUALIZAR)
     @PostMapping("/guardar")
     public String guardarAlquiler(@ModelAttribute("alquiler") Alquiler alquiler, 
                                   @ModelAttribute("cliente") Cliente cliente,
                                   RedirectAttributes redirectAttributes) {
-        
-        // 1. Buscar o Crear Cliente por Cédula
-        Optional<Cliente> clienteExistente = clienteRepository.findByCedula(cliente.getCedula());
-        Cliente clienteFinal;
-        if (clienteExistente.isPresent()) {
-            clienteFinal = clienteExistente.get();
-        } else {
-            clienteFinal = clienteRepository.save(cliente);
+        try {
+            // El service detecta si el alquiler ya tiene ID para actualizarlo
+            alquilerService.registrarAlquiler(alquiler, cliente);
+            
+            String mensaje = (alquiler.getId() != null) ? "Alquiler actualizado con éxito." : "Alquiler registrado correctamente.";
+            redirectAttributes.addFlashAttribute("success", mensaje);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            // Si hay error, regresamos al formulario (ya sea modo edición o nuevo)
+            return "redirect:/alquileres/nuevo";
         }
+        return "redirect:/alquileres";
+    }
 
-        // 2. Obtener la Prenda completa de la DB
-        Prenda prenda = prendaRepository.findById(alquiler.getPrenda().getId()).orElse(null);
-
-        if (prenda != null) {
-            // 3. Validación de Precio (No inferior al precio de inventario)
-            if (alquiler.getValorCobrado().compareTo(prenda.getPrecioAlquiler()) < 0) {
-                redirectAttributes.addFlashAttribute("error", "El valor cobrado no puede ser menor al precio de alquiler ($" + prenda.getPrecioAlquiler() + ")");
-                return "redirect:/alquileres/nuevo";
-            }
-
-            // 4. Validar Stock
-            if (prenda.getCantidad() <= 0) {
-                redirectAttributes.addFlashAttribute("error", "No hay stock disponible de esta prenda.");
-                return "redirect:/alquileres/nuevo";
-            }
-
-            // 5. Configurar Alquiler y Guardar
-            alquiler.setCliente(clienteFinal);
-            alquiler.setFechaAlquiler(LocalDate.now());
-            alquilerRepository.save(alquiler);
-
-            // 6. Restar stock a la prenda
-            prenda.setCantidad(prenda.getCantidad() - 1);
-            if (prenda.getCantidad() == 0) {
-                prenda.setEstado("Agotado");
-            }
-            prendaRepository.save(prenda);
+    // ELIMINAR
+    @GetMapping("/eliminar/{id}")
+    public String eliminarAlquiler(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            alquilerService.eliminarAlquiler(id);
+            redirectAttributes.addFlashAttribute("success", "Registro eliminado correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el registro.");
         }
-
         return "redirect:/alquileres";
     }
 }

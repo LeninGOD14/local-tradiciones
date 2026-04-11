@@ -14,17 +14,17 @@ public class Prenda {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precioAlquiler;
 
-    @Column(nullable = false)
-    private Integer cantidad; // Cuántas unidades tiene en total
-
-    @Column(nullable = false)
-    private String estado;
-
-    // Constructor vacío
+    // Constructor vacío (Obligatorio para JPA)
     public Prenda() {
+    }
+
+    // Constructor para facilitar la creación de objetos
+    public Prenda(String nombre, BigDecimal precioAlquiler) {
+        this.nombre = nombre;
+        this.precioAlquiler = precioAlquiler;
     }
 
     // Getters y Setters
@@ -50,21 +50,5 @@ public class Prenda {
 
     public void setPrecioAlquiler(BigDecimal precioAlquiler) {
         this.precioAlquiler = precioAlquiler;
-    }
-
-    public Integer getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(Integer cantidad) {
-        this.cantidad = cantidad;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
     }
 }

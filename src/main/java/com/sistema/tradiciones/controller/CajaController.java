@@ -6,6 +6,7 @@ import com.sistema.tradiciones.model.Gasto;
 import com.sistema.tradiciones.repository.AlquilerRepository;
 import com.sistema.tradiciones.repository.CierreCajaRepository;
 import com.sistema.tradiciones.repository.GastoRepository;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,70 +31,94 @@ public class CajaController {
         this.cierreCajaRepository = cierreCajaRepository;
     }
 
+    /**
+     * Muestra el historial de cierres (lista-cierres.html)
+     */
     @GetMapping
     public String historialCierres(Model model) {
+        // Ordenamos por fecha descendente para ver lo más reciente arriba
         model.addAttribute("cierres", cierreCajaRepository.findAll());
         return "lista-cierres";
     }
 
+    /**
+     * Resumen diario con filtrado por fecha (cierre-hoy.html)
+     */
     @GetMapping("/resumen-hoy")
-    public String resumenHoy(Model model) {
-        LocalDate hoy = LocalDate.now();
+    public String resumenCaja(@RequestParam(name = "fecha", required = false) 
+                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha, 
+                              Model model) {
         
-        List<Alquiler> alquileresHoy = alquilerRepository.findByFechaAlquiler(hoy);
-        List<Gasto> gastosHoy = gastoRepository.findByFecha(hoy);
+        // Si no hay fecha en el URL, usamos el día actual
+        LocalDate fechaBusqueda = (fecha == null) ? LocalDate.now() : fecha;
+        
+        List<Alquiler> alquileres = alquilerRepository.findByFechaAlquiler(fechaBusqueda);
+        List<Gasto> gastosHoy = gastoRepository.findByFecha(fechaBusqueda);
 
-        // Suma total de todos los alquileres (Efectivo + Transferencia)
-        BigDecimal ingresosTotales = alquileresHoy.stream()
+        // 1. Total bruto (Efectivo + Transferencias)
+        BigDecimal ingresosTotales = alquileres.stream()
                 .map(Alquiler::getValorCobrado)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // FILTRO: Solo lo que entró en Efectivo
-        BigDecimal ingresosEfectivo = alquileresHoy.stream()
-                .filter(a -> "EFECTIVO".equalsIgnoreCase(a.getMetodoPago()))
+        // 2. Desglose: Efectivo
+        BigDecimal ingresosEfectivo = alquileres.stream()
+                .filter(a -> a.getMetodoPago() != null && "EFECTIVO".equalsIgnoreCase(a.getMetodoPago()))
                 .map(Alquiler::getValorCobrado)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // FILTRO: Solo lo que entró por Transferencia
-        BigDecimal ingresosTransferencia = alquileresHoy.stream()
-                .filter(a -> "TRANSFERENCIA".equalsIgnoreCase(a.getMetodoPago()))
+        // 3. Desglose: Transferencias
+        BigDecimal ingresosTransferencia = alquileres.stream()
+                .filter(a -> a.getMetodoPago() != null && "TRANSFERENCIA".equalsIgnoreCase(a.getMetodoPago()))
                 .map(Alquiler::getValorCobrado)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Suma de gastos (asumimos que salen del efectivo de la caja)
-        BigDecimal gastos = gastosHoy.stream()
+        // 4. Suma de Gastos
+        BigDecimal totalGastos = gastosHoy.stream()
                 .map(Gasto::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // El SALDO NETO de caja es: Lo que entró en efectivo menos los gastos
-        BigDecimal saldoCajaFisica = ingresosEfectivo.subtract(gastos);
+        // 5. Saldo Neto (Dinero real en caja física: Efectivo - Gastos)
+        BigDecimal saldoCajaFisica = ingresosEfectivo.subtract(totalGastos);
 
-        model.addAttribute("ingresos", ingresosTotales); // Para mostrar el éxito total
+        // Atributos para las "Stat Cards" y el formulario
+        model.addAttribute("ingresos", ingresosTotales); 
         model.addAttribute("ingresosEfectivo", ingresosEfectivo);
         model.addAttribute("ingresosTransferencia", ingresosTransferencia);
-        model.addAttribute("gastos", gastos);
-        model.addAttribute("saldo", saldoCajaFisica); // Lo que DEBE haber en el cajón
+        model.addAttribute("gastos", totalGastos);
+        model.addAttribute("saldo", saldoCajaFisica);
         
-        model.addAttribute("alquileresHoy", alquileresHoy);
+        // Atributos para las tablas
+        model.addAttribute("alquileresHoy", alquileres);
         model.addAttribute("gastosHoy", gastosHoy);
+        
+        // Para que el input date mantenga la fecha seleccionada
+        model.addAttribute("fechaSeleccionada", fechaBusqueda);
         
         return "cierre-hoy";
     }
 
+    /**
+     * Procesa el guardado del cierre de caja
+     */
     @PostMapping("/cerrar")
-    public String procesarCierre(@RequestParam BigDecimal ingresos, 
+    public String procesarCierre(@RequestParam BigDecimal ingresosTotales, 
+                                 @RequestParam BigDecimal ingresosEfectivo,
+                                 @RequestParam BigDecimal ingresosTransferencia,
                                  @RequestParam BigDecimal gastos, 
-                                 @RequestParam BigDecimal saldo) {
-        CierreCaja cierre = new CierreCaja();
-        cierre.setFecha(LocalDate.now());
+                                 @RequestParam BigDecimal saldo,
+                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaCierre) {
         
-        // Aquí guardamos los valores finales
-        // Nota: 'ingresos' aquí debería ser el efectivo si eso es lo que quieres auditar
-        cierre.setTotalIngresos(ingresos); 
+        CierreCaja cierre = new CierreCaja();
+        cierre.setFecha(fechaCierre);
+        cierre.setTotalIngresos(ingresosTotales);
+        cierre.setIngresosEfectivo(ingresosEfectivo);
+        cierre.setIngresosTransferencia(ingresosTransferencia);
         cierre.setTotalGastos(gastos);
         cierre.setSaldoNeto(saldo);
         
         cierreCajaRepository.save(cierre);
+        
+        // Redirige al historial para ver el nuevo registro
         return "redirect:/caja";
     }
 }

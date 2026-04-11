@@ -16,29 +16,20 @@ public class PrendaController {
         this.prendaRepository = prendaRepository;
     }
 
-    // Listar todas las prendas
     @GetMapping
     public String listarPrendas(Model model) {
         model.addAttribute("prendas", prendaRepository.findAll());
-        return "lista-prendas";     }
+        return "lista-prendas";
+    }
 
-    // Mostrar formulario de nueva prenda
     @GetMapping("/nuevo")
     public String formularioNuevaPrenda(Model model) {
         model.addAttribute("prenda", new Prenda());
-        return "formulario-prenda"; 
+        return "formulario-prenda";
     }
 
-    // Guardar la prenda
     @PostMapping("/guardar")
     public String guardarPrenda(@ModelAttribute("prenda") Prenda prenda) {
-        // Lógica simple de estado basada en cantidad
-        if (prenda.getCantidad() != null && prenda.getCantidad() > 0) {
-            prenda.setEstado("Disponible");
-        } else {
-            prenda.setEstado("Agotado");
-        }
-        
         prendaRepository.save(prenda);
         return "redirect:/prendas";
     }

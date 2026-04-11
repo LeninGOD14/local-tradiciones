@@ -67,6 +67,7 @@
                 flex-direction: column;
                 padding: 20px;
                 overflow: hidden;
+                min-height: 0; /* Permite que el contenedor se ajuste para el scroll */
             }
 
             .footer-custom {
@@ -117,6 +118,7 @@
                 border-radius: 20px;
                 border: 2px solid #eee;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+                min-height: 0; /* Activa el scroll interno en diseño flex */
             }
 
             .table thead {
@@ -139,15 +141,6 @@
             .prenda-nombre {
                 color: var(--verde-cayambe);
                 font-weight: 700;
-            }
-
-            .badge-disponible {
-                background-color: var(--verde-cayambe);
-                color: white;
-            }
-            .badge-agotado {
-                background-color: #dc3545;
-                color: white;
             }
         </style>
     </head>
@@ -184,8 +177,6 @@
                                 <th width="80">ID</th>
                                 <th>Nombre de la Prenda</th>
                                 <th>Precio Alquiler</th>
-                                <th>Stock</th>
-                                <th>Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -197,15 +188,6 @@
                                     <small class="text-muted">Prenda Folclórica</small>
                                 </td>
                                 <td class="fw-bold text-dark" th:text="'$' + ${prenda.precioAlquiler}">$0.00</td>
-                                <td>
-                                    <span class="badge rounded-pill bg-light text-dark border" th:text="${prenda.cantidad} + ' uds'">0</span>
-                                </td>
-                                <td>
-                                    <span th:if="${prenda.estado == 'Disponible'}" class="badge badge-disponible px-3">Disponible</span>
-                                    <span th:if="${prenda.estado == 'Agotado'}" class="badge badge-agotado px-3">Agotado</span>
-                                    <span th:if="${prenda.estado != 'Disponible' && prenda.estado != 'Agotado'}" 
-                                          class="badge bg-warning text-dark px-3" th:text="${prenda.estado}">Estado</span>
-                                </td>
                                 <td class="text-center">
                                     <div class="btn-group shadow-sm">
                                         <a href="#" class="btn btn-outline-primary btn-sm px-3"><i class="bi bi-pencil"></i></a>
@@ -215,7 +197,7 @@
                             </tr>
 
                             <tr th:if="${#lists.isEmpty(prendas)}">
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="4" class="text-center py-5">
                                     <i class="bi bi-tags text-muted d-block mb-2" style="font-size: 3rem;"></i>
                                     <p class="text-muted fw-bold">No se registran prendas en el sistema.</p>
                                 </td>

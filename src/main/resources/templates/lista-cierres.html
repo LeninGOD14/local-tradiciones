@@ -67,6 +67,7 @@
             flex-direction: column;
             padding: 20px;
             overflow: hidden;
+            min-height: 0; 
         }
 
         .section-title {
@@ -100,6 +101,7 @@
             border-radius: 20px;
             border: 2px solid #eee;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            min-height: 0;
         }
 
         .table thead th {
@@ -175,7 +177,7 @@
                     <p class="text-muted fw-bold mb-0">Historial de cierres y saldos netos</p>
                 </div>
                 <a th:href="@{/caja/resumen-hoy}" class="btn btn-cierre px-4 py-2">
-                    <i class="bi bi-briefcase-fill me-2"></i>Cierre de Hoy
+                    <i class="bi bi-briefcase-fill me-2"></i>Cierre de Caja
                 </a>
             </div>
 
@@ -183,12 +185,11 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th width="150">Fecha</th>
-                            <th>
-                                Ingresos (Efectivo) 
-                                <span class="badge-info-caja shadow-sm">CAJA FÍSICA</span>
-                            </th>
-                            <th>Gastos Operativos</th>
+                            <th width="120">Fecha</th>
+                            <th>Efectivo</th>
+                            <th>Transferencia</th>
+                            <th>Total Ingresos</th>
+                            <th>Gastos</th>
                             <th>Saldo Neto</th>
                             <th class="text-center">Reporte</th>
                         </tr>
@@ -198,6 +199,12 @@
                             <td class="fw-bold text-muted">
                                 <i class="bi bi-calendar-check me-2"></i>
                                 <span th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                            </td>
+                            <td class="text-muted">
+                                <span th:text="'$' + ${c.ingresosEfectivo}">$0.00</span>
+                            </td>
+                            <td class="text-muted">
+                                <span th:text="'$' + ${c.ingresosTransferencia}">$0.00</span>
                             </td>
                             <td>
                                 <span class="monto-ingreso" th:text="'+ $' + ${c.totalIngresos}">$0.00</span>
@@ -216,7 +223,7 @@
                         </tr>
                         
                         <tr th:if="${#lists.isEmpty(cierres)}">
-                            <td colspan="5" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <i class="bi bi-archive text-muted d-block mb-2" style="font-size: 3rem;"></i>
                                 <p class="text-muted fw-bold">No se registran cierres de caja en el sistema.</p>
                             </td>

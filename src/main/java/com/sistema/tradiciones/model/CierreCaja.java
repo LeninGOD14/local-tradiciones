@@ -13,14 +13,16 @@ public class CierreCaja {
     private Long id;
 
     private LocalDate fecha;
-    private BigDecimal totalIngresos; // Suma de alquileres
-    private BigDecimal totalGastos;   // Suma de gastos
-    private BigDecimal saldoNeto;     // Ingresos - Gastos
+    private BigDecimal totalIngresos;      // Suma total (Todo)
+    private BigDecimal ingresosEfectivo;   // NUEVO: Solo efectivo
+    private BigDecimal ingresosTransferencia; // NUEVO: Solo transferencia
+    private BigDecimal totalGastos;        // Suma de gastos
+    private BigDecimal saldoNeto;          // ingresosEfectivo - Gastos
 
     public CierreCaja() {
     }
 
-    // Getters y Setters
+    // --- Getters y Setters ---
     public Long getId() {
         return id;
     }
@@ -43,6 +45,22 @@ public class CierreCaja {
 
     public void setTotalIngresos(BigDecimal totalIngresos) {
         this.totalIngresos = totalIngresos;
+    }
+
+    public BigDecimal getIngresosEfectivo() {
+        return ingresosEfectivo;
+    }
+
+    public void setIngresosEfectivo(BigDecimal ingresosEfectivo) {
+        this.ingresosEfectivo = ingresosEfectivo;
+    }
+
+    public BigDecimal getIngresosTransferencia() {
+        return ingresosTransferencia;
+    }
+
+    public void setIngresosTransferencia(BigDecimal ingresosTransferencia) {
+        this.ingresosTransferencia = ingresosTransferencia;
     }
 
     public BigDecimal getTotalGastos() {
