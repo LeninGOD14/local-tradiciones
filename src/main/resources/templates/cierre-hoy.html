@@ -169,7 +169,7 @@
             .footer-brand-text {
                 font-family: 'Archivo Black', sans-serif;
                 color: var(--amarillo-oro);
-                font-size: 1rem;
+                font-size: 1.0rem;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 margin: 0;
@@ -296,12 +296,13 @@
                         <div class="summary-card shadow-sm" style="flex: 1;">
                             <div class="card-header-custom d-flex justify-content-between align-items-center">
                                 <span><i class="bi bi-wallet2 me-2"></i>Gastos del Local</span>
-                                <button class="btn btn-sm btn-danger px-3 fw-bold" data-bs-toggle="collapse" data-bs-target="#formGasto" style="border-radius: 8px;">
+                                <button th:if="${!yaCerrado}" class="btn btn-sm btn-danger px-3 fw-bold" data-bs-toggle="collapse" data-bs-target="#formGasto" style="border-radius: 8px;">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
+                                <span th:if="${yaCerrado}" class="badge bg-secondary text-white fw-bold">DÍA CERRADO</span>
                             </div>
 
-                            <div class="p-3 collapse" id="formGasto">
+                            <div class="p-3 collapse" id="formGasto" th:if="${!yaCerrado}">
                                 <form th:action="@{/gastos/guardar-rapido}" method="post" class="p-3 border rounded bg-light">
                                     <input type="hidden" name="fechaGasto" th:value="${fechaSeleccionada}">
                                     <input type="text" name="descripcion" class="form-control form-control-sm mb-2" placeholder="Concepto (ej: Pago Luz)" required>
@@ -325,7 +326,7 @@
                                             <td th:text="${g.descripcion}" class="small">Gasto</td>
                                             <td class="text-danger fw-bold text-end small" th:text="'-$' + ${g.monto}">$0</td>
                                             <td class="text-end" style="width: 80px;">
-                                                <div class="btn-group">
+                                                <div class="btn-group" th:if="${!yaCerrado}">
                                                     <a th:href="@{/gastos/eliminar/{id}(id=${g.id})}" 
                                                        class="btn btn-link btn-sm text-danger p-1"
                                                        onclick="return confirm('¿Seguro que quieres eliminar este gasto?')">
@@ -350,8 +351,9 @@
                             <input type="hidden" name="gastos" th:value="${gastos}">
                             <input type="hidden" name="saldo" th:value="${saldo}">
                             <button type="submit" class="btn btn-cerrar-caja" 
-                                    th:disabled="${#lists.isEmpty(alquileresHoy) && #lists.isEmpty(gastosHoy)}">
-                                <i class="bi bi-shield-lock-fill me-2"></i> Finalizar Cierre (Solo Efectivo)
+                                    th:disabled="${yaCerrado || (#lists.isEmpty(alquileresHoy) && #lists.isEmpty(gastosHoy))}">
+                                <i th:class="${yaCerrado} ? 'bi bi-check-all me-2' : 'bi bi-shield-lock-fill me-2'"></i>
+                                <span th:text="${yaCerrado} ? 'ESTA FECHA YA FUE CERRADA' : 'Finalizar Cierre (Solo Efectivo)'"></span>
                             </button>
                         </form>
 

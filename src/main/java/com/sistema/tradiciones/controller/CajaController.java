@@ -10,10 +10,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/caja")
@@ -36,7 +38,7 @@ public class CajaController {
      */
     @GetMapping
     public String historialCierres(Model model) {
-        // Ordenamos por fecha descendente para ver lo más reciente arriba
+        // Obtenemos todos los cierres para el historial
         model.addAttribute("cierres", cierreCajaRepository.findAll());
         return "lista-cierres";
     }
@@ -51,6 +53,10 @@ public class CajaController {
         
         // Si no hay fecha en el URL, usamos el día actual
         LocalDate fechaBusqueda = (fecha == null) ? LocalDate.now() : fecha;
+        
+        // Verificamos si ya existe un cierre para esta fecha
+        Optional<CierreCaja> cierreExistente = cierreCajaRepository.findByFecha(fechaBusqueda);
+        model.addAttribute("yaCerrado", cierreExistente.isPresent());
         
         List<Alquiler> alquileres = alquilerRepository.findByFechaAlquiler(fechaBusqueda);
         List<Gasto> gastosHoy = gastoRepository.findByFecha(fechaBusqueda);
@@ -106,7 +112,14 @@ public class CajaController {
                                  @RequestParam BigDecimal ingresosTransferencia,
                                  @RequestParam BigDecimal gastos, 
                                  @RequestParam BigDecimal saldo,
-                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaCierre) {
+                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaCierre,
+                                 RedirectAttributes flash) {
+        
+        // Validación de seguridad: Verificar si ya existe un cierre para esa fecha
+        if (cierreCajaRepository.findByFecha(fechaCierre).isPresent()) {
+            flash.addFlashAttribute("error", "Ya existe un cierre registrado para la fecha: " + fechaCierre);
+            return "redirect:/caja/resumen-hoy?fecha=" + fechaCierre;
+        }
         
         CierreCaja cierre = new CierreCaja();
         cierre.setFecha(fechaCierre);
@@ -118,7 +131,23 @@ public class CajaController {
         
         cierreCajaRepository.save(cierre);
         
+        flash.addFlashAttribute("success", "Cierre de caja guardado exitosamente.");
+        
         // Redirige al historial para ver el nuevo registro
+        return "redirect:/caja";
+    }
+
+    /**
+     * Elimina un registro de cierre de caja
+     */
+    @GetMapping("/eliminar/{id}")
+    public String eliminarCierre(@PathVariable Long id, RedirectAttributes flash) {
+        try {
+            cierreCajaRepository.deleteById(id);
+            flash.addFlashAttribute("success", "Cierre eliminado correctamente. La edición para esa fecha ha sido habilitada.");
+        } catch (Exception e) {
+            flash.addFlashAttribute("error", "No se pudo eliminar el cierre de caja.");
+        }
         return "redirect:/caja";
     }
 }

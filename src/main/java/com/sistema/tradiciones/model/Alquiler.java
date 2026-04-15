@@ -21,8 +21,12 @@ public class Alquiler {
     private LocalDate fechaAlquiler;
     private BigDecimal valorCobrado;
 
-    // NUEVO CAMPO: Para saber si es Efectivo o Transferencia
+    // Para saber si es Efectivo o Transferencia
     private String metodoPago;
+
+    // NUEVO CAMPO: Para saber si ya devolvieron la prenda
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean devuelto = false;
 
     public Alquiler() {
     }
@@ -68,12 +72,19 @@ public class Alquiler {
         this.valorCobrado = valorCobrado;
     }
 
-    // Nuevos Getter y Setter
     public String getMetodoPago() {
         return metodoPago;
     }
 
     public void setMetodoPago(String metodoPago) {
         this.metodoPago = metodoPago;
+    }
+
+    public boolean isDevuelto() {
+        return devuelto;
+    }
+
+    public void setDevuelto(boolean devuelto) {
+        this.devuelto = devuelto;
     }
 }

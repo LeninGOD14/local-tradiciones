@@ -26,10 +26,12 @@ public class AlquilerController {
         this.alquilerService = alquilerService;
     }
 
-    // LISTADO PRINCIPAL
+    // LISTADO PRINCIPAL (MODIFICADO)
     @GetMapping
     public String listarAlquileres(Model model) {
-        model.addAttribute("alquileres", alquilerRepository.findAll());
+        // Ahora mandamos dos listas distintas para las pestañas
+        model.addAttribute("alquileresActivos", alquilerService.listarActivos());
+        model.addAttribute("alquileresDevueltos", alquilerService.listarDevueltos());
         return "lista-alquileres";
     }
 
@@ -42,7 +44,7 @@ public class AlquilerController {
         return "formulario-alquiler";
     }
 
-    // FORMULARIO PARA EDITAR (REUSA LA MISMA VISTA)
+    // FORMULARIO PARA EDITAR
     @GetMapping("/editar/{id}")
     public String editarAlquiler(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         Alquiler alquiler = alquilerService.buscarPorId(id);
@@ -56,21 +58,30 @@ public class AlquilerController {
         return "formulario-alquiler"; 
     }
 
-    // PROCESAR GUARDADO (SIRVE PARA CREAR Y ACTUALIZAR)
+    // PROCESAR GUARDADO
     @PostMapping("/guardar")
     public String guardarAlquiler(@ModelAttribute("alquiler") Alquiler alquiler, 
                                   @ModelAttribute("cliente") Cliente cliente,
                                   RedirectAttributes redirectAttributes) {
         try {
-            // El service detecta si el alquiler ya tiene ID para actualizarlo
             alquilerService.registrarAlquiler(alquiler, cliente);
-            
             String mensaje = (alquiler.getId() != null) ? "Alquiler actualizado con éxito." : "Alquiler registrado correctamente.";
             redirectAttributes.addFlashAttribute("success", mensaje);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            // Si hay error, regresamos al formulario (ya sea modo edición o nuevo)
             return "redirect:/alquileres/nuevo";
+        }
+        return "redirect:/alquileres";
+    }
+
+    // --- NUEVO: MARCAR COMO DEVUELTO ---
+    @PostMapping("/devolver/{id}")
+    public String devolverAlquiler(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            alquilerService.marcarComoDevuelto(id);
+            redirectAttributes.addFlashAttribute("success", "¡Genial! La prenda se ha marcado como devuelta.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al procesar la devolución: " + e.getMessage());
         }
         return "redirect:/alquileres";
     }

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Reportes y Estadísticas - Tradiciones</title>
+        <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            :root {
+                --verde-cayambe: #1b4d3e;
+                --verde-claro: #2d6a4f;
+                --amarillo-oro: #f9d71c;
+                --borde-logo: #004d00;
+            }
+
+            html, body {
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            body {
+                background-color: #f4f7f6;
+                font-family: 'Montserrat', sans-serif;
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .navbar-custom {
+                background-color: var(--verde-cayambe);
+                border-bottom: 4px solid var(--amarillo-oro);
+                padding: 15px 0;
+                flex-shrink: 0;
+            }
+
+            .navbar-brand-text {
+                font-family: 'Archivo Black', sans-serif;
+                color: var(--amarillo-oro) !important;
+                font-size: 1.8rem;
+                text-transform: uppercase;
+                letter-spacing: -1px;
+                text-shadow: 2px 2px 0px var(--borde-logo);
+            }
+
+            .main-container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+                min-height: 0;
+            }
+
+            .card-reporte {
+                background: white;
+                border-radius: 20px;
+                border: none;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+                padding: 25px;
+            }
+
+            .content-wrapper {
+                position: relative;
+                flex: 1;
+                min-height: 0;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* AJUSTE PARA CARDS CON GRÁFICO ANCHO */
+            .stat-card {
+                padding: 20px;
+                border-radius: 15px;
+                border-left: 5px solid;
+                background: #fff;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                position: relative; /* Para posicionar el gráfico */
+                overflow: hidden;
+            }
+
+            .stat-info {
+                position: relative;
+                z-index: 2; /* Asegura que el texto esté sobre el gráfico */
+                pointer-events: none; /* Evita que el texto interfiera con el mouse si hubiera tooltips */
+            }
+
+            .sparkline-container {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width: 70%; /* Ocupa el 70% de la card para que se vea ancho */
+                height: 80%; /* Ocupa casi todo el alto */
+                padding-right: 10px;
+            }
+
+            .footer-custom {
+                background-color: var(--verde-cayambe);
+                border-top: 4px solid var(--amarillo-oro);
+                padding: 15px 0;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .footer-brand-text {
+                font-family: 'Archivo Black', sans-serif;
+                color: var(--amarillo-oro);
+                font-size: 1rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-dark navbar-custom shadow">
+            <div class="container">
+                <a class="navbar-brand navbar-brand-text" th:href="@{/}">TRADICIONES</a>
+                <a th:href="@{/}" class="btn btn-outline-warning btn-sm fw-bold px-3">
+                    <i class="bi bi-house-door me-2"></i>Volver
+                </a>
+            </div>
+        </nav>
+
+        <main class="main-container">
+            <div class="container-fluid h-100">
+                <div class="row h-100 g-4">
+
+                    <div class="col-md-4">
+                        <div class="card-reporte shadow-sm h-100">
+                            <h5 class="fw-bold mb-4 text-center" style="color: var(--verde-cayambe);">Configurar Informe</h5>
+                            <form id="formReporte">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-uppercase">Tipo de Reporte</label>
+                                    <select class="form-select" id="tipoReporte">
+                                        <option value="FINANCIERO_CARDS">Análisis Financiero (Solo Cards)</option>
+                                        <option value="FINANCIERO_GRAFICO">Análisis Financiero (Gráfico)</option>
+                                        <option value="PRENDAS_TOP">Prendas Más Alquiladas (Barras)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-uppercase">Fecha Inicio</label>
+                                    <input type="date" class="form-control" id="fechaInicio" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-uppercase">Fecha Fin</label>
+                                    <input type="date" class="form-control" id="fechaFin" required>
+                                </div>
+                                <button type="button" class="btn btn-success w-100 fw-bold py-2" onclick="procesarInforme()" 
+                                        style="background-color: var(--verde-cayambe); border: none;">
+                                    <i class="bi bi-play-circle-fill me-2"></i>PROCESAR DATOS
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 d-flex flex-column">
+                        <div class="card-reporte shadow-sm d-flex flex-column" style="flex: 1; min-height: 0;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold m-0" id="tituloDinamico" style="color: var(--verde-cayambe);">Visor de Reportes</h5>
+                                <span class="badge rounded-pill" id="badgeStatus" style="background-color: var(--amarillo-oro); color: var(--verde-cayambe);">EN VIVO</span>
+                            </div>
+
+                            <div id="contenedorCards" class="flex-column mb-3" style="display: none; flex: 1; gap: 15px;">
+                                <div style="flex: 1;">
+                                    <div class="stat-card" style="border-color: var(--amarillo-oro);">
+                                        <div class="stat-info">
+                                            <small class="text-muted fw-bold">INGRESOS</small>
+                                            <h3 class="fw-bold m-0" id="valIngresos">$0.00</h3>
+                                        </div>
+                                        <div class="sparkline-container">
+                                            <canvas id="sparklineIngresos"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="stat-card" style="border-color: #dc3545;">
+                                        <div class="stat-info">
+                                            <small class="text-muted fw-bold">GASTOS</small>
+                                            <h3 class="fw-bold m-0" id="valGastos">$0.00</h3>
+                                        </div>
+                                        <div class="sparkline-container">
+                                            <canvas id="sparklineGastos"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="stat-card" style="border-color: #198754;">
+                                        <div class="stat-info">
+                                            <small class="text-muted fw-bold">NETO</small>
+                                            <h3 class="fw-bold m-0" id="valNeto">$0.00</h3>
+                                        </div>
+                                        <div class="sparkline-container">
+                                            <canvas id="sparklineNeto"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="contenedorGrafico" class="content-wrapper" style="display: none;">
+                                <canvas id="miGrafico"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer-custom shadow-lg">
+            <div class="container">
+                <p class="footer-brand-text">SISTEMA TRADICIONES | CAYAMBE - ECUADOR</p>
+                <small class="text-white-50" style="font-size: 0.75rem;">Cultura y Folklore en cada prenda</small>
+            </div>
+        </footer>
+
+        <script>
+            let miChart;
+            let sparkCharts = {};
+
+            async function procesarInforme() {
+            const tipo = document.getElementById('tipoReporte').value;
+            const inicio = document.getElementById('fechaInicio').value;
+            const fin = document.getElementById('fechaFin').value;
+
+            const divCards = document.getElementById('contenedorCards');
+            const divGrafico = document.getElementById('contenedorGrafico');
+            const titulo = document.getElementById('tituloDinamico');
+
+            if (tipo === 'FINANCIERO_CARDS') {
+            divCards.style.display = 'flex'; 
+            divGrafico.style.display = 'none';
+            titulo.innerText = 'Resumen Financiero';
+            await cargarCards(inicio, fin);
+            } 
+            else if (tipo === 'FINANCIERO_GRAFICO') {
+            divCards.style.display = 'none';
+            divGrafico.style.display = 'flex'; 
+            titulo.innerText = 'Evolución de Ingresos y Gastos';
+            await cargarGrafico(tipo, inicio, fin, 'line');
+            }
+            else if (tipo === 'PRENDAS_TOP') {
+            divCards.style.display = 'none';
+            divGrafico.style.display = 'flex';
+            titulo.innerText = 'Top Prendas Alquiladas';
+            await cargarGrafico(tipo, inicio, fin, 'bar');
+            }
+            }
+
+            async function cargarCards(inicio, fin) {
+            try {
+            const resStats = await fetch(`/reportes/api/totales?inicio=${inicio}&fin=${fin}`);
+            const stats = await resStats.json();
+            document.getElementById('valIngresos').innerText = `$${stats.ingresos.toFixed(2)}`;
+            document.getElementById('valGastos').innerText = `$${stats.gastos.toFixed(2)}`;
+            document.getElementById('valNeto').innerText = `$${stats.neto.toFixed(2)}`;
+
+            const resData = await fetch(`/reportes/api/grafico?tipo=FINANCIERO_GRAFICO&inicio=${inicio}&fin=${fin}`);
+            const history = await resData.json();
+
+            // Colores con opacidad para rellenar el fondo del "electro"
+            renderSparkline('sparklineIngresos', history.map(d => d.ingreso || 0), '#f9d71c', 'rgba(249, 215, 28, 0.1)');
+            renderSparkline('sparklineGastos', history.map(d => d.gasto || 0), '#dc3545', 'rgba(220, 53, 69, 0.05)');
+            renderSparkline('sparklineNeto', history.map(d => d.valor || 0), '#198754', 'rgba(25, 135, 84, 0.1)');
+
+            } catch (e) { console.error("Error en cards", e); }
+            }
+
+            function renderSparkline(canvasId, dataPoints, color, fillColor) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (sparkCharts[canvasId]) sparkCharts[canvasId].destroy();
+
+            sparkCharts[canvasId] = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: dataPoints.map((_, i) => i),
+            datasets: [{
+            data: dataPoints,
+            borderColor: color,
+            backgroundColor: fillColor,
+            borderWidth: 3,
+            fill: true, // Rellena para que ocupe más espacio visual
+            tension: 0.4,
+            pointRadius: 0
+            }]
+            },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+            padding: { left: -10, bottom: -10 } // Elimina márgenes internos
+            },
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: { 
+            x: { display: false }, 
+            y: { display: false, grace: '5%' } // Pequeño margen arriba/abajo
+            }
+            }
+            });
+            }
+
+            async function cargarGrafico(tipo, inicio, fin, chartType) {
+            try {
+            const res = await fetch(`/reportes/api/grafico?tipo=${tipo}&inicio=${inicio}&fin=${fin}`);
+            const data = await res.json();
+            const ctx = document.getElementById('miGrafico').getContext('2d');
+            if (miChart) miChart.destroy();
+
+            let datasets = [];
+            if (tipo === 'FINANCIERO_GRAFICO') {
+            datasets = [
+            { label: 'Ingresos ($)', data: data.map(i => i.ingreso || 0), borderColor: '#2d6a4f', borderWidth: 3, tension: 0.4, fill: false },
+            { label: 'Gastos ($)', data: data.map(i => i.gasto || 0), borderColor: '#dc3545', borderWidth: 3, tension: 0.4, fill: false },
+            { label: 'Saldo Neto ($)', data: data.map(i => i.valor || 0), borderColor: '#f9d71c', backgroundColor: 'rgba(249, 215, 28, 0.2)', borderWidth: 4, pointRadius: 5, tension: 0.4, fill: true }
+            ];
+            } else {
+            datasets = [{ label: 'Veces Alquilada', data: data.map(i => i.valor), borderColor: '#1b4d3e', backgroundColor: '#2d6a4f', borderWidth: 1 }];
+            }
+
+            miChart = new Chart(ctx, {
+            type: chartType,
+            data: { labels: data.map(i => i.etiqueta), datasets: datasets },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: { 
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+            },
+            plugins: { legend: { position: 'top', labels: { font: { weight: 'bold' } } } }
+            }
+            });
+            } catch (e) { console.error("Error en gráfico", e); }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+            const hoy = new Date();
+            document.getElementById('fechaInicio').value = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+            procesarInforme();
+            });
+        </script>
+    </body>
+</html>

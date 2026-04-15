@@ -20,8 +20,8 @@ public class AlquilerService {
     private final PrendaRepository prendaRepository;
 
     public AlquilerService(AlquilerRepository alquilerRepository, 
-                          ClienteRepository clienteRepository, 
-                          PrendaRepository prendaRepository) {
+                           ClienteRepository clienteRepository, 
+                           PrendaRepository prendaRepository) {
         this.alquilerRepository = alquilerRepository;
         this.clienteRepository = clienteRepository;
         this.prendaRepository = prendaRepository;
@@ -31,13 +31,23 @@ public class AlquilerService {
         return alquilerRepository.findAll();
     }
 
+    // NUEVO: Traer solo los activos (No devueltos)
+    public List<Alquiler> listarActivos() {
+        return alquilerRepository.findByDevueltoFalse();
+    }
+
+    // NUEVO: Traer solo los devueltos
+    public List<Alquiler> listarDevueltos() {
+        return alquilerRepository.findByDevueltoTrue();
+    }
+
     public Alquiler buscarPorId(Long id) {
         return alquilerRepository.findById(id).orElse(null);
     }
 
     @Transactional
     public void registrarAlquiler(Alquiler alquiler, Cliente cliente) throws Exception {
-        // 1. Manejo del Cliente (Si no existe por cédula, se guarda)
+        // 1. Manejo del Cliente
         Cliente clienteFinal = clienteRepository.findByCedula(cliente.getCedula())
                 .orElseGet(() -> clienteRepository.save(cliente));
 
@@ -50,41 +60,42 @@ public class AlquilerService {
             throw new Exception("El valor cobrado no puede ser menor a $" + prenda.getPrecioAlquiler());
         }
 
-        // 4. Configurar y guardar
+        // 4. Configurar y guardar (Por defecto entra como NO devuelto)
         alquiler.setCliente(clienteFinal);
         alquiler.setFechaAlquiler(LocalDate.now());
+        alquiler.setDevuelto(false); 
         alquilerRepository.save(alquiler);
     }
 
-    // --- NUEVO: MÉTODO PARA EDITAR ---
     @Transactional
     public void actualizarAlquiler(Long id, Alquiler alquilerActualizado) throws Exception {
-        // 1. Verificar si el alquiler original existe
         Alquiler alquilerExistente = alquilerRepository.findById(id)
                 .orElseThrow(() -> new Exception("El registro de alquiler no existe"));
 
-        // 2. Validar la prenda (por si se cambió en el formulario)
         Prenda prenda = prendaRepository.findById(alquilerActualizado.getPrenda().getId())
                 .orElseThrow(() -> new Exception("La prenda seleccionada no existe"));
 
-        // 3. Validar el nuevo precio cobrado
         if (alquilerActualizado.getValorCobrado().compareTo(prenda.getPrecioAlquiler()) < 0) {
             throw new Exception("El nuevo valor no puede ser menor al precio base de $" + prenda.getPrecioAlquiler());
         }
 
-        // 4. Actualizar datos (No solemos cambiar el cliente a menos que sea error de dedo, 
-        // pero aquí actualizamos los campos principales)
         alquilerExistente.setPrenda(prenda);
         alquilerExistente.setValorCobrado(alquilerActualizado.getValorCobrado());
         alquilerExistente.setMetodoPago(alquilerActualizado.getMetodoPago());
-        
-        // La fecha de alquiler la solemos mantener, pero si necesitas cambiarla:
-        // alquilerExistente.setFechaAlquiler(alquilerActualizado.getFechaAlquiler());
 
         alquilerRepository.save(alquilerExistente);
     }
 
-    // --- NUEVO: MÉTODO PARA BORRAR ---
+    // --- NUEVO: MÉTODO PARA MARCAR COMO DEVUELTO ---
+    @Transactional
+    public void marcarComoDevuelto(Long id) throws Exception {
+        Alquiler alquilerExistente = alquilerRepository.findById(id)
+                .orElseThrow(() -> new Exception("El registro de alquiler no existe"));
+        
+        alquilerExistente.setDevuelto(true); // Cambiamos el estado
+        alquilerRepository.save(alquilerExistente);
+    }
+
     @Transactional
     public void eliminarAlquiler(Long id) throws Exception {
         if (!alquilerRepository.existsById(id)) {

@@ -127,16 +127,6 @@
             display: inline-block;
         }
 
-        .badge-info-caja {
-            font-size: 0.6rem;
-            background-color: var(--amarillo-oro);
-            color: var(--verde-cayambe);
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 5px;
-            vertical-align: middle;
-        }
-
         .footer-custom {
             background-color: var(--verde-cayambe);
             border-top: 4px solid var(--amarillo-oro);
@@ -159,7 +149,7 @@
 
     <nav class="navbar navbar-dark navbar-custom shadow">
         <div class="container">
-            <a class="navbar-brand navbar-brand-text" href="#">
+            <a class="navbar-brand navbar-brand-text" th:href="@{/}">
                 TRADICIONES
             </a>
             <a th:href="@{/}" class="btn btn-logout btn-sm px-3 shadow-sm">
@@ -191,7 +181,7 @@
                             <th>Total Ingresos</th>
                             <th>Gastos</th>
                             <th>Saldo Neto</th>
-                            <th class="text-center">Reporte</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,9 +206,15 @@
                                 <span class="monto-neto fw-bold" th:text="'$' + ${c.saldoNeto}">$0.00</span>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-outline-primary btn-sm px-3 shadow-sm">
-                                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF
-                                </button>
+                                <div class="btn-group" role="group">
+                                    <a th:href="@{/caja/editar/{id}(id=${c.id})}" class="btn btn-sm btn-outline-warning shadow-sm me-2" style="border-radius: 8px;">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a th:href="@{/caja/eliminar/{id}(id=${c.id})}" class="btn btn-sm btn-outline-danger shadow-sm" style="border-radius: 8px;" 
+                                       onclick="return confirm('¿Estás seguro de eliminar este registro de caja?')">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         
